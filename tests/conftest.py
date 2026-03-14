@@ -9,16 +9,18 @@ from app.main import app
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
+
 @pytest.fixture(scope="function")
 def db_engine():
     engine = create_engine(
         TEST_DATABASE_URL,
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool
+        poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
+
 
 @pytest.fixture(scope="function")
 def db_session(db_engine):
@@ -26,6 +28,7 @@ def db_session(db_engine):
     session = TestingSessionLocal()
     yield session
     session.close()
+
 
 @pytest.fixture(scope="function")
 def client(db_session):
