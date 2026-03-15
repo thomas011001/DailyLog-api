@@ -3,3 +3,4 @@ alembic.ini
 __pycache__/
 .env
 .pytest_cache/
+.envrc

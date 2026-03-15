@@ -1,44 +1,10 @@
-from typing import Optional
-
-from pydantic import BaseModel
-from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import IntegrityError, NoResultFound
 
 from app.dependancies import get_current_user, get_day_repo
-from app.models import Day
+from app.exception import DayConflictError, DayNotFoundError, ForbiddenDayAccessError
 from app.repo.day_repo import DayRepo
-
-
-class CreateDay(BaseModel):
-    title: str | None = None
-    date: date
-
-
-class DayOut(BaseModel):
-    id: int
-    title: str | None = None
-    date: date
-    tasks: list[TaskOut]
-    notes: list[NoteOut]
-
-
-class TaskOut(BaseModel):
-    id: int
-    title: str
-    description: str | None = None
-    priority: int = 1
-    remind_at: datetime | None = None
-
-
-class NoteOut(BaseModel):
-    id: int
-    content: str
-
-
-class UpdateDay(BaseModel):
-    title: str | None = None
-    new_date: date | None = None
+from app.schemas import CreateDay, DayOut, UpdateDay
+from app.services.day_service import DayService
 
 
 day_router = APIRouter()
@@ -50,12 +16,13 @@ def create_day(
     repo: DayRepo = Depends(get_day_repo),
     user: dict = Depends(get_current_user),
 ):
+    service = DayService(repo)
     try:
-        new_day = Day(user_id=user["id"], title=day.title, date=day.date)
-        return repo.create_day(new_day)
-    except IntegrityError:
+        new_day = service.create_day(user_id=user["id"], payload=day)
+        return new_day
+    except DayConflictError:
         raise HTTPException(status.HTTP_409_CONFLICT, "This Day Already Exist.")
-    except:
+    except Exception:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
@@ -67,20 +34,17 @@ def delete_day(
     repo: DayRepo = Depends(get_day_repo),
     current_user: dict = Depends(get_current_user),
 ):
-
+    service = DayService(repo)
     try:
-        day = repo.get_day(id)
-    except NoResultFound:
+        service.delete_day(day_id=id, user_id=current_user["id"])
+    except DayNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Day not found.")
-    except:
+    except ForbiddenDayAccessError:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
+    except Exception:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
-
-    if day.user_id != current_user["id"]:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
-
-    repo.delete_day(day)
 
     return {"detail": "Day deleted."}
 
@@ -91,17 +55,17 @@ def get_day_content(
     repo: DayRepo = Depends(get_day_repo),
     current_user: dict = Depends(get_current_user),
 ):
+    service = DayService(repo)
     try:
-        day = repo.get_day_content(id)
-    except NoResultFound:
+        day = service.get_day_content(day_id=id, user_id=current_user["id"])
+    except DayNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Day not found.")
-    except:
+    except ForbiddenDayAccessError:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
+    except Exception:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
-
-    if day.user_id != current_user["id"]:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
 
     return day
 
@@ -113,29 +77,20 @@ def edit_day(
     repo: DayRepo = Depends(get_day_repo),
     current_user: dict = Depends(get_current_user),
 ):
+    service = DayService(repo)
     try:
-        day = repo.get_day(id)
-    except NoResultFound:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Day not found.")
-    except:
-        raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
-        )
-
-    if day.user_id != current_user["id"]:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
-
-    try:
-        updated_day = repo.update_day(
-            day, title=day_update.title, date=day_update.new_date
+        updated_day = service.edit_day(
+            day_id=id, user_id=current_user["id"], payload=day_update
         )
         return updated_day
-    except IntegrityError:
+    except DayNotFoundError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Day not found.")
+    except ForbiddenDayAccessError:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Forbidden.")
+    except DayConflictError:
         raise HTTPException(status.HTTP_409_CONFLICT, "This Day Already Exist.")
-    except:
+    except Exception:
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
 
-
-# edit a day name or date

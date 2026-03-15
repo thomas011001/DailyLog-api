@@ -11,6 +11,10 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.repo.day_repo import DayRepo
 from app.repo.user_repo import UserRepo
+from app.repo.task_repo import TaskRepo
+from app.repo.note_repo import NoteRepo
+from app.services.task_service import TaskService
+from app.services.note_service import NoteService
 
 load_dotenv()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -45,3 +49,25 @@ def get_user_repo(db: Session = Depends(get_db)):
 
 def get_day_repo(db: Session = Depends(get_db)):
     return DayRepo(db)
+
+
+def get_task_repo(db: Session = Depends(get_db)):
+    return TaskRepo(db)
+
+
+def get_note_repo(db: Session = Depends(get_db)):
+    return NoteRepo(db)
+
+
+def get_task_service(
+    task_repo: TaskRepo = Depends(get_task_repo),
+    day_repo: DayRepo = Depends(get_day_repo),
+):
+    return TaskService(task_repo=task_repo, day_repo=day_repo)
+
+
+def get_note_service(
+    note_repo: NoteRepo = Depends(get_note_repo),
+    day_repo: DayRepo = Depends(get_day_repo),
+):
+    return NoteService(note_repo=note_repo, day_repo=day_repo)

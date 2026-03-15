@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models import User
+from app.models import Day, User
 
 
 class UserRepo:
@@ -23,3 +23,6 @@ class UserRepo:
 
     def get_user_by_username(self, username):
         return self.db.query(User).filter(User.username == username).first()
+
+    def get_user_days(self, id):
+        return self.db.query(Day).filter(Day.user_id == id).all()
