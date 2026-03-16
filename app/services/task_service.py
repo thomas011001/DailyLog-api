@@ -42,6 +42,7 @@ class TaskService:
             description=payload.description,
             priority=payload.priority,
             remind_at=payload.remind_at,
+            status=payload.status or "pending",
         )
         try:
             return self.task_repo.create_task(task)
@@ -59,6 +60,12 @@ class TaskService:
         task = self._get_task_or_404(task_id)
         self._ensure_task_ownership(task, user_id)
 
+        # constrain status to either "pending" or "finished" if provided
+        status_value = payload.status
+        if status_value is not None and status_value not in {"pending", "finished"}:
+            # Treat invalid status as no-op on status, or you could raise a dedicated error.
+            status_value = None
+
         try:
             return self.task_repo.update_task(
                 task,
@@ -66,6 +73,7 @@ class TaskService:
                 description=payload.description,
                 priority=payload.priority,
                 remind_at=payload.remind_at,
+                status=status_value,
             )
         except IntegrityError as exc:
             # In case of constraint issues, treat as not found / conflict

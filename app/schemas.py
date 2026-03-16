@@ -31,6 +31,7 @@ class TaskOut(BaseModel):
     description: str | None = None
     priority: int = 1
     remind_at: datetime | None = None
+    status: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -68,6 +69,7 @@ class CreateTask(BaseModel):
     description: str | None = None
     priority: int = 1
     remind_at: datetime | None = None
+    status: str | None = None
 
 
 class UpdateTask(BaseModel):
@@ -75,6 +77,7 @@ class UpdateTask(BaseModel):
     description: str | None = None
     priority: int | None = None
     remind_at: datetime | None = None
+    status: str | None = None
 
 
 class CreateNote(BaseModel):

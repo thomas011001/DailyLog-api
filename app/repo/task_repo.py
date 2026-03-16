@@ -30,6 +30,7 @@ class TaskRepo:
         description: str | None = None,
         priority: int | None = None,
         remind_at=None,
+        status: str | None = None,
     ) -> Task:
         if title is not None:
             task.title = title  # type: ignore
@@ -39,6 +40,8 @@ class TaskRepo:
             task.priority = priority  # type: ignore
         if remind_at is not None:
             task.remind_at = remind_at  # type: ignore
+        if status is not None:
+            task.status = status  # type: ignore
 
         self.db.commit()
         self.db.refresh(task)
