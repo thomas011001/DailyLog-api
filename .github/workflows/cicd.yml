@@ -23,7 +23,8 @@ jobs:
 
       - name: Run Tests
         env:
-          SQLALCHEMY_DATABASE_URL: "sqlite:///./test.db"
+          DATABASE_URL: "sqlite:///./test.db"
+          ACCESS_TOKEN_KEY: "test_access_token_key"
         run: |
           pytest
 
