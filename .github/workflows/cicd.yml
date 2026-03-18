@@ -22,6 +22,8 @@ jobs:
           pip install pytest
 
       - name: Run Tests
+        env:
+          SQLALCHEMY_DATABASE_URL: "sqlite:///./test.db"
         run: |
           pytest
 
