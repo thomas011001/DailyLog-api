@@ -5,7 +5,6 @@ from app.exception import DayNotFoundError, ForbiddenDayAccessError, TaskNotFoun
 from app.schemas import CreateTask, TaskOut, UpdateTask
 from app.services.task_service import TaskService
 
-
 task_router = APIRouter()
 
 

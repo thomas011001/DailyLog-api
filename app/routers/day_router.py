@@ -6,7 +6,6 @@ from app.repo.day_repo import DayRepo
 from app.schemas import CreateDay, DayOut, UpdateDay
 from app.services.day_service import DayService
 
-
 day_router = APIRouter()
 
 

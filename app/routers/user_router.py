@@ -5,7 +5,6 @@ from app.repo.user_repo import UserRepo
 from app.schemas import DayOut
 from app.services.user_service import UserService
 
-
 user_router = APIRouter()
 
 

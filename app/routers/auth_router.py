@@ -9,7 +9,6 @@ from app.services.auth_service import (
     UsernameTakenError,
 )
 
-
 auth_router = APIRouter()
 
 

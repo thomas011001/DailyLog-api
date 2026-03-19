@@ -5,7 +5,6 @@ from app.exception import DayNotFoundError, ForbiddenDayAccessError, NoteNotFoun
 from app.schemas import CreateNote, NoteOut, UpdateNote
 from app.services.note_service import NoteService
 
-
 note_router = APIRouter()
 
 
