@@ -23,4 +23,3 @@ def get_current_user_days(
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
-

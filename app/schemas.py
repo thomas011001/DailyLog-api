@@ -4,13 +4,19 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class CreateUser(BaseModel):
-    username: str = Field(min_length=3)
-    password: str = Field(min_length=5)
+    first_name: str = Field(min_length=2, max_length=50)
+    last_name: str = Field(min_length=2, max_length=50)
+    username: str = Field(min_length=3, max_length=20, pattern=r"^\S+$")
+    password: str = Field(min_length=8, max_length=128)
+
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class UserOut(BaseModel):
     id: int
     username: str
+    first_name: str | None = None
+    last_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -84,4 +90,3 @@ class CreateNote(BaseModel):
 
 class UpdateNote(BaseModel):
     content: str | None = None
-

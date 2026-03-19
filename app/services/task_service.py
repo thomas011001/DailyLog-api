@@ -75,4 +75,3 @@ class TaskService:
         task = self._get_task_or_404(task_id)
         self._ensure_task_ownership(task, user_id)
         self.task_repo.delete_task(task)
-

@@ -39,4 +39,3 @@ def login(credentials: Credentials, repo: UserRepo = Depends(get_user_repo)):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid username or password")
 
     return {"token": token}
-

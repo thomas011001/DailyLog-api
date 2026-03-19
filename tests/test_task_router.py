@@ -66,7 +66,9 @@ class TestCreateTask:
         )
         assert res.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_create_task_day_of_other_user(self, client: TestClient, db_session, task_auth_headers):
+    def test_create_task_day_of_other_user(
+        self, client: TestClient, db_session, task_auth_headers
+    ):
         other_user = User(username="other", password_hash="hash")
         db_session.add(other_user)
         db_session.commit()
@@ -192,4 +194,3 @@ class TestDeleteTask:
     def test_delete_task_without_auth(self, client: TestClient, existing_task: Task):
         res = client.delete(f"/tasks/{existing_task.id}")
         assert res.status_code == status.HTTP_401_UNAUTHORIZED
-

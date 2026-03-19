@@ -9,9 +9,7 @@ from app.services.note_service import NoteService
 note_router = APIRouter()
 
 
-@note_router.post(
-    "/notes", response_model=NoteOut, status_code=status.HTTP_201_CREATED
-)
+@note_router.post("/notes", response_model=NoteOut, status_code=status.HTTP_201_CREATED)
 def create_note(
     payload: CreateNote,
     current_user: dict = Depends(get_current_user),
@@ -72,4 +70,3 @@ def delete_note(
         )
 
     return {"detail": "Note deleted."}
-

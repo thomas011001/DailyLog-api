@@ -32,4 +32,3 @@ class NoteRepo:
     def delete_note(self, note: Note) -> None:
         self.db.delete(note)
         self.db.commit()
-

@@ -188,4 +188,3 @@ class TestDeleteNote:
     def test_delete_note_without_auth(self, client: TestClient, existing_note: Note):
         res = client.delete(f"/notes/{existing_note.id}")
         assert res.status_code == status.HTTP_401_UNAUTHORIZED
-

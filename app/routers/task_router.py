@@ -38,7 +38,9 @@ def edit_task(
     service: TaskService = Depends(get_task_service),
 ):
     try:
-        task = service.edit_task(task_id=task_id, user_id=current_user["id"], payload=payload)
+        task = service.edit_task(
+            task_id=task_id, user_id=current_user["id"], payload=payload
+        )
         return task
     except TaskNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Task not found.")
@@ -68,4 +70,3 @@ def delete_task(
         )
 
     return {"detail": "Task deleted."}
-

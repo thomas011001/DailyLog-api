@@ -13,6 +13,7 @@ from app.dependancies import get_current_user, get_user_repo
 # --- Fixtures ---
 load_dotenv()
 
+
 @pytest.fixture
 def registered_user(db_session):
     user = User(username="thomas", password_hash=hash_password("Foo1234"))
@@ -98,7 +99,7 @@ class TestGetCurrentUserDays:
         db_session.commit()
         db_session.refresh(other_user)
 
-        other_day = Day(date=datetime.date(2024,5,6), user_id=other_user.id)
+        other_day = Day(date=datetime.date(2024, 5, 6), user_id=other_user.id)
         db_session.add(other_day)
         db_session.commit()
 

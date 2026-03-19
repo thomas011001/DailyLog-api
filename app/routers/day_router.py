@@ -93,4 +93,3 @@ def edit_day(
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
-

@@ -29,4 +29,3 @@ class AuthService:
             raise InvalidCredentialsError()
 
         return user.token
-

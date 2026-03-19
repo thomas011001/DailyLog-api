@@ -53,4 +53,3 @@ class DayService:
             )
         except IntegrityError as exc:
             raise DayConflictError() from exc
-

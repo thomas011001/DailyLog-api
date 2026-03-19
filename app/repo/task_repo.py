@@ -47,4 +47,3 @@ class TaskRepo:
     def delete_task(self, task: Task) -> None:
         self.db.delete(task)
         self.db.commit()
-
