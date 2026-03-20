@@ -1,10 +1,12 @@
 import datetime
 import os
+import enum
 
 from dotenv import load_dotenv
 import jwt
 from sqlalchemy import (
     Column,
+    Enum,
     Integer,
     String,
     Text,
@@ -19,6 +21,11 @@ from sqlalchemy.orm import relationship
 from app.core.db import Base
 
 load_dotenv()
+
+
+class StepType(enum.Enum):
+    FOCUS = "focus"
+    BREAK = "break"
 
 
 class User(Base):
@@ -59,6 +66,9 @@ class Day(Base):
     owner = relationship("User", back_populates="days")
     tasks = relationship("Task", back_populates="day", cascade="all, delete-orphan")
     notes = relationship("Note", back_populates="day", cascade="all, delete-orphan")
+    time_blocks = relationship(
+        "TimeBlock", back_populates="day", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "date", name="_user_day_uc"),)
 
@@ -87,3 +97,58 @@ class Note(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     day = relationship("Day", back_populates="notes")
+
+
+class TimeBlock(Base):
+    __tablename__ = "time_block"
+
+    id = Column(Integer, primary_key=True, index=True)
+    day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
+
+    day = relationship("Day", back_populates="time_blocks")
+    steps = relationship(
+        "BaseStep", back_populates="time_block", cascade="all, delete-orphan"
+    )
+
+
+class BaseStep(Base):
+    __tablename__ = "base_step"
+
+    id = Column(Integer, primary_key=True, index=True)
+    time_block_id = Column(
+        Integer, ForeignKey("time_block.id", ondelete="CASCADE"), nullable=False
+    )
+    type = Column(
+        Enum(StepType),
+    )
+    type_identity = Column(String(50))
+    is_completed = Column(Boolean, default=False)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "base",
+        "polymorphic_on": type_identity,
+    }
+
+    block = relationship("TimeBlock", back_populates="steps")
+
+
+class FocusStep(BaseStep):
+    __tablename__ = "focus_step"
+    id = Column(Integer, ForeignKey("base_step.id"), primary_key=True)
+
+    sessions_count = Column(Integer, default=1)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "focus",
+    }
+
+
+class BreakStep(BaseStep):
+    __tablename__ = "break_steps"
+    id = Column(Integer, ForeignKey("base_step.id"), primary_key=True)
+
+    description = Column(String, nullable=True)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "break",
+    }
