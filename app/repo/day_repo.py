@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, joinedload
 
-from app.models import Day, User
+from app.models import Day, TimeBlock, User
 
 
 class DayRepo:
@@ -16,6 +16,8 @@ class DayRepo:
 
     def create_day(self, day):
         new_day = day
+        new_timeblock = TimeBlock()
+        new_day.time_blocks.append(new_timeblock)
         self.db.add(new_day)
         self.db.commit()
         self.db.refresh(new_day)
