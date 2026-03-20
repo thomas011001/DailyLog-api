@@ -27,7 +27,7 @@ class NoteService:
 
     def _ensure_note_ownership(self, note: Note, user_id: int) -> None:
         if note.day is None:
-            day = self.day_repo.get_day(note.day_id) 
+            day = self.day_repo.get_day(note.day_id)
         else:
             day = note.day
         if day.user_id != user_id:
