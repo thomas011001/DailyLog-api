@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
