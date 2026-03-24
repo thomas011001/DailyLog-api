@@ -24,18 +24,6 @@ from .schemas import StepType
 
 load_dotenv()
 
-# Mars 3 2025 - DayTitle - Target: 16 --> Day Model --> User Model
-# ----------------------
-# [ ] Task One                        --> Task Model --> Day Model
-# [ ] Task Two
-# [ ] Task Three
-# ----------------------
-# 1. O (O: Focus Session)             --> Focus Session Model --> Focus Step Model --> Day Model
-# 2. coffee break                     --> Break Step Model --> Day Model
-# 3. O O O
-# 4. 30m Scrolling
-# 5. O O O O
-
 
 class User(Base):
     __tablename__ = "users"
@@ -102,11 +90,6 @@ class Day(Base):
         order_by="BaseStep.order",
     )
 
-    # will be deleted
-    notes: Mapped[list["Note"]] = relationship(
-        back_populates="day", cascade="all, delete-orphan"
-    )
-
     __table_args__ = (UniqueConstraint("user_id", "date", name="_user_day_uc"),)
 
 
@@ -121,24 +104,9 @@ class Task(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     day_id: Mapped[int] = mapped_column(ForeignKey("days.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String(255))
-    status: Mapped[str] = mapped_column(default="pending")
+    is_complete: Mapped[bool] = mapped_column(default=False)
 
     day: Mapped["Day"] = relationship(back_populates="tasks")
-
-    # will be deleted
-    description = Column(Text)
-
-
-# will be deleted
-class Note(Base):
-    __tablename__ = "notes"
-
-    id = Column(Integer, primary_key=True, index=True)
-    day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
-    content = Column(Text, nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
-
-    day = relationship("Day", back_populates="notes")
 
 
 class FocusSession(Base):
