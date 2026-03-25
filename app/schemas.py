@@ -1,6 +1,12 @@
 from datetime import date, datetime
+import enum
 
 from pydantic import BaseModel, Field, ConfigDict
+
+
+class StepType(enum.Enum):
+    FOCUS = "focus"
+    BREAK = "break"
 
 
 class CreateUser(BaseModel):
@@ -34,26 +40,7 @@ class CreateDay(BaseModel):
 class TaskOut(BaseModel):
     id: int
     title: str
-    description: str | None = None
-    priority: int = 1
-    remind_at: datetime | None = None
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class NoteOut(BaseModel):
-    id: int
-    content: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class DayOut(BaseModel):
-    id: int
-    title: str | None = None
-    date: date
-    tasks: list[TaskOut]
-    notes: list[NoteOut]
+    is_complete: bool
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -69,24 +56,52 @@ class UserTokenData(BaseModel):
 
 
 class CreateTask(BaseModel):
-    day_id: int
     title: str
-    description: str | None = None
-    priority: int = 1
-    remind_at: datetime | None = None
 
 
 class UpdateTask(BaseModel):
     title: str | None = None
-    description: str | None = None
-    priority: int | None = None
-    remind_at: datetime | None = None
+    is_complete: bool | None = None
 
 
-class CreateNote(BaseModel):
-    day_id: int
-    content: str
+class StepOut(BaseModel):
+    id: int
+    order: int
+    is_completed: bool
+    type_identity: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class UpdateNote(BaseModel):
-    content: str | None = None
+class FocusSessionOut(BaseModel):
+    id: int 
+    is_completed: bool 
+
+    model_config = ConfigDict(from_attributes=True)
+
+class FocusStepOut(StepOut):
+    sessions_count: int
+    sessions: list[FocusSessionOut]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BreakStepOut(StepOut):
+    description: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+
+class DayOut(BaseModel):
+    id: int
+    title: str | None = None
+    date: date
+    tasks: list[TaskOut]
+    steps: list[FocusStepOut | BreakStepOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FocusStepCreate(BaseModel):
+    sessions_count: int = Field(gt=0, default=1)

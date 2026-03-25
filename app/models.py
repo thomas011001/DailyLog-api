@@ -5,22 +5,14 @@ from typing import Optional
 from dotenv import load_dotenv
 import jwt
 from sqlalchemy import (
-    Column,
-    Enum,
-    Integer,
     String,
-    Text,
-    DateTime,
     ForeignKey,
-    Date,
-    Boolean,
     UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
 
-from .schemas import StepType
 
 load_dotenv()
 
@@ -180,7 +172,7 @@ class FocusStep(BaseStep):
 
 
 class BreakStep(BaseStep):
-    __tablename__ = "break_steps"
+    __tablename__ = "break_step"
 
     id: Mapped[int] = mapped_column(
         ForeignKey("base_step.id", ondelete="CASCADE"), primary_key=True

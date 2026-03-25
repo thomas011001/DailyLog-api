@@ -8,15 +8,19 @@ from app.services.task_service import TaskService
 task_router = APIRouter()
 
 
-@task_router.post("/tasks", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
+@task_router.post(
+    "/days/{day_id}/tasks", response_model=TaskOut, status_code=status.HTTP_201_CREATED
+)
 def create_task(
     payload: CreateTask,
+    day_id: int,
     current_user: dict = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
 ):
     try:
-        task = service.create_task(user_id=current_user["id"], payload=payload)
-        return task
+        return service.create_task(
+            user_id=current_user["id"], payload=payload, day_id=day_id
+        )
     except DayNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Day not found.")
     except ForbiddenDayAccessError:

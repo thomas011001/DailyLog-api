@@ -12,12 +12,19 @@ class AuthService:
         self.user_repo = user_repo
 
     def register_user(self, user_in: CreateUser) -> User:
+        is_username_taken = self.user_repo.username_exists(user_in.username)
+        if is_username_taken:
+            raise UsernameTakenError()
+
         hashed_password = hash_password(user_in.password)
-        user = User(username=user_in.username, password_hash=hashed_password)
+        user = User(
+            **user_in.model_dump(exclude={"password"}),
+            password_hash=hashed_password,
+        )
 
         try:
             return self.user_repo.create_user(user)
-        except IntegrityError as exc:  # pragma: no cover - mapped at router level
+        except IntegrityError as exc:
             raise UsernameTakenError() from exc
 
     def authenticate(self, credentials: Credentials) -> str:
@@ -25,7 +32,8 @@ class AuthService:
         if not user:
             raise InvalidCredentialsError()
 
-        if not verify_password(credentials.password, user.password_hash):
+        correct_passwrod = verify_password(credentials.password, user.password_hash)
+        if not correct_passwrod:
             raise InvalidCredentialsError()
 
         return user.token

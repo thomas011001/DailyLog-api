@@ -22,5 +22,3 @@ class TaskNotFoundError(Exception):
     pass
 
 
-class NoteNotFoundError(Exception):
-    pass
