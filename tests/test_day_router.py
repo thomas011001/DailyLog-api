@@ -13,29 +13,6 @@ from app.models import User, Day
 load_dotenv()
 
 
-@pytest.fixture
-def test_user(db_session: Session):
-    user = User(username="test_user", password_hash="hashed_pw")
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
-    return user
-
-
-@pytest.fixture
-def auth_headers(test_user: User):
-    return {"Authorization": f"Bearer {test_user.token}"}
-
-
-@pytest.fixture
-def test_day(db_session: Session, test_user):
-    day = Day(owner=test_user, date=datetime.datetime(2025, 5, 5))
-    db_session.add(day)
-    db_session.commit()
-    db_session.refresh(day)
-    return day
-
-
 class TestCraeteDay:
 
     def test_create_day_success(self, client, auth_headers):
@@ -74,7 +51,6 @@ class TestCraeteDay:
         res = client.post(
             "/day",
             json={"title": "Foo", "date": date(2024, 5, 30).isoformat()},
-            headers={"Authorization": f"Bearer 123"},
         )
         assert res.status_code == status.HTTP_401_UNAUTHORIZED
         res2 = client.post(

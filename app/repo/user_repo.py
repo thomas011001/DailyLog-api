@@ -1,3 +1,4 @@
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from app.models import Day, User
@@ -15,14 +16,13 @@ class UserRepo:
         return new_user
 
     def username_exists(self, username):
-        return (
-            True
-            if self.db.query(User).filter(User.username == username).first()
-            else False
-        )
+        stmt = select(exists().where(User.username == username))
+        return self.db.scalar(stmt)
 
     def get_user_by_username(self, username):
-        return self.db.query(User).filter(User.username == username).first()
+        stmt = select(User).where(User.username == username)
+        return self.db.execute(stmt).scalar_one_or_none()
 
-    def get_user_days(self, id):
-        return self.db.query(Day).filter(Day.user_id == id).all()
+    def get_user_days(self, user_id):
+        stmt = select(Day).where(Day.user_id == user_id)
+        return self.db.execute(stmt).scalars().all()

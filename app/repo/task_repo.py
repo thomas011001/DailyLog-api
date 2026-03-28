@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, joinedload
 
@@ -9,13 +10,8 @@ class TaskRepo:
         self.db = db
 
     def get_task(self, task_id: int) -> Task:
-        task = (
-            self.db.query(Task)
-            .options(joinedload(Task.day))
-            .filter(Task.id == task_id)
-            .one()
-        )
-        return task
+        stmt = select(Task).where(Task.id == task_id)
+        return self.db.scalar(stmt)
 
     def create_task(self, task: Task) -> Task:
         self.db.add(task)
@@ -27,6 +23,7 @@ class TaskRepo:
         self,
         task: Task,
         title: str | None = None,
+<<<<<<< HEAD
         description: str | None = None,
         priority: int | None = None,
         remind_at=None,
@@ -42,6 +39,14 @@ class TaskRepo:
             task.remind_at = remind_at  # type: ignore
         if status is not None:
             task.status = status  # type: ignore
+=======
+        is_complete: bool | None = None,
+    ) -> Task:
+        if title is not None:
+            task.title = title
+        if is_complete is not None:
+            task.is_complete = is_complete
+>>>>>>> dev
 
         self.db.commit()
         self.db.refresh(task)
@@ -50,4 +55,3 @@ class TaskRepo:
     def delete_task(self, task: Task) -> None:
         self.db.delete(task)
         self.db.commit()
-

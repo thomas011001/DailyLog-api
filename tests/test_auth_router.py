@@ -15,7 +15,13 @@ class TestSignUp:
     # signup success case
     def test_signup_success(self, client):
         response = client.post(
-            "/signup", json={"username": "thomas", "password": "Foo1234"}
+            "/signup",
+            json={
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
         )
 
         assert response.status_code == status.HTTP_201_CREATED
@@ -25,10 +31,85 @@ class TestSignUp:
         db_session.add(User(username="thomas", password_hash="123"))
         db_session.commit()
         response = client.post(
-            "/signup", json={"username": "thomas", "password": "Foo1234"}
+            "/signup",
+            json={
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
         )
 
         assert response.status_code == status.HTTP_409_CONFLICT
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {
+                "first_name": "",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "",
+            },
+            {"first_name": "", "last_name": "", "username": "", "password": ""},
+        ],
+    )
+    def test_signup_empty_fields(self, client, payload):
+        response = client.post("/signup", json=payload)
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {
+                "first_name": "T",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "D",
+                "username": "thomas",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "t",
+                "password": "Foo123456",
+            },
+            {
+                "first_name": "Thomas",
+                "last_name": "Doe",
+                "username": "thomas",
+                "password": "F",
+            },
+        ],
+    )
+    def test_signup_short_fields(self, client, payload):
+        response = client.post("/signup", json=payload)
+        print(response.json())
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 class TestLogin:

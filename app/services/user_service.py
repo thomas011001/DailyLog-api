@@ -8,4 +8,3 @@ class UserService:
 
     def get_user_days(self, user_id: int) -> list[Day]:
         return self.user_repo.get_user_days(user_id)
-

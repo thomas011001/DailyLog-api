@@ -1,21 +1,16 @@
 import datetime
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 import jwt
 from sqlalchemy import (
-    Column,
-    Integer,
     String,
-    Text,
-    DateTime,
     ForeignKey,
-    Date,
-    Boolean,
     UniqueConstraint,
     func,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
 
 load_dotenv()
@@ -24,13 +19,25 @@ load_dotenv()
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, nullable=False, index=True)
-    email = Column(String(255), unique=True, nullable=True, index=True)
-    password_hash = Column(Text, nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
+    # old version
 
-    days = relationship("Day", back_populates="owner", cascade="all, delete-orphan")
+    # id = Column(Integer, primary_key=True, index=True)
+    # first_name = Column(String(100), nullable=True)
+    # last_name = Column(String(100), nullable=True)
+    # username = Column(String(50), unique=True, nullable=False, index=True)
+    # password_hash = Column(Text, nullable=False)
+    # created_at = Column(DateTime, server_default=func.now())
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    first_name: Mapped[Optional[str]] = mapped_column(String(100))
+    last_name: Mapped[Optional[str]] = mapped_column(String(100))
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    password_hash: Mapped[str]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
+
+    days: Mapped[list["Day"]] = relationship(
+        back_populates="owner", cascade="all, delete-orphan"
+    )
 
     @property
     def token(self):
@@ -42,21 +49,37 @@ class User(Base):
         token = jwt.encode(payload, os.getenv("ACCESS_TOKEN_KEY", "very secret key"))
         return token
 
+    @property
+    def auth_headers(self):
+        return {"Authorization": f"Bearer {self.token}"}
+
 
 class Day(Base):
     __tablename__ = "days"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
-    date = Column(Date, nullable=False, index=True)
-    # daily_summary = Column(Text)
-    title = Column(String, nullable=True)
+    # old version
 
-    owner = relationship("User", back_populates="days")
-    tasks = relationship("Task", back_populates="day", cascade="all, delete-orphan")
-    notes = relationship("Note", back_populates="day", cascade="all, delete-orphan")
+    # id = Column(Integer, primary_key=True, index=True)
+    # user_id = Column(
+    #     Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    # )
+    # date = Column(Date, nullable=False, index=True)
+    # title = Column(String, nullable=True)
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    date: Mapped[datetime.date]
+    title: Mapped[Optional[str]]
+
+    owner: Mapped["User"] = relationship(back_populates="days")
+    tasks: Mapped[list["Task"]] = relationship(
+        back_populates="day", cascade="all, delete-orphan"
+    )
+    steps: Mapped[list["BaseStep"]] = relationship(
+        back_populates="day",
+        cascade="all, delete-orphan",
+        order_by="BaseStep.order",
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "date", name="_user_day_uc"),)
 
@@ -64,24 +87,98 @@ class Day(Base):
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)
-    day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
-    title = Column(String(255), nullable=False)
-    description = Column(Text)
-    status = Column(String(20), default="pending", index=True)
-    priority = Column(Integer, default=1, index=True)
-    remind_at = Column(DateTime, index=True)
-    is_notified = Column(Boolean, default=False)
+    # id = Column(Integer, primary_key=True, index=True)
+    # day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
+    # title = Column(String(255), nullable=False)
+    # status = Column(String(20), default="pending", index=True)
 
-    day = relationship("Day", back_populates="tasks")
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    day_id: Mapped[int] = mapped_column(ForeignKey("days.id", ondelete="CASCADE"))
+    title: Mapped[str] = mapped_column(String(255))
+    is_complete: Mapped[bool] = mapped_column(default=False)
+
+    day: Mapped["Day"] = relationship(back_populates="tasks")
 
 
-class Note(Base):
-    __tablename__ = "notes"
+class FocusSession(Base):
+    __tablename__ = "focus_sessions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
-    content = Column(Text, nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
+    # old version
 
-    day = relationship("Day", back_populates="notes")
+    # id = Column(Integer, primary_key=True)
+    # focus_step_id = Column(Integer, ForeignKey("focus_step.id", ondelete="CASCADE"))
+    # is_completed = Column(Boolean, default=False)
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    focus_step_id: Mapped[int] = mapped_column(
+        ForeignKey("focus_step.id", ondelete="CASCADE")
+    )
+    is_completed: Mapped[bool] = mapped_column(default=False)
+
+    step: Mapped["FocusStep"] = relationship(back_populates="sessions")
+
+
+class BaseStep(Base):
+    __tablename__ = "base_step"
+
+    # old version
+
+    # id = Column(Integer, primary_key=True, index=True)
+    # order = Column(Integer, nullable=False)
+    # day_id = Column(Integer, ForeignKey("days.id", ondelete="CASCADE"), nullable=False)
+    # type_identity = Column(String(50))
+    # is_completed = Column(Boolean, default=False)
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    order: Mapped[int]
+    day_id: Mapped[int] = mapped_column(ForeignKey("days.id", ondelete="CASCADE"))
+    type_identity: Mapped[str] = mapped_column(String(50))
+    is_completed: Mapped[bool] = mapped_column(default=False)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "base",
+        "polymorphic_on": "type_identity",
+    }
+
+    day: Mapped["Day"] = relationship("Day", back_populates="steps")
+
+    __table_args__ = (UniqueConstraint("day_id", "order", name="_day_order_uc"),)
+
+
+class FocusStep(BaseStep):
+    __tablename__ = "focus_step"
+
+    # old version
+
+    # id = Column(
+    #     Integer, ForeignKey("base_step.id", ondelete="CASCADE"), primary_key=True
+    # )
+    # sessions_count = Column(Integer, default=1)
+
+    id: Mapped[int] = mapped_column(
+        ForeignKey("base_step.id", ondelete="CASCADE"), primary_key=True
+    )
+
+    sessions_count: Mapped[int] = mapped_column(default=1)
+
+    sessions: Mapped[list["FocusSession"]] = relationship(
+        back_populates="step", cascade="all, delete-orphan"
+    )
+
+    __mapper_args__ = {
+        "polymorphic_identity": "focus",
+    }
+
+
+class BreakStep(BaseStep):
+    __tablename__ = "break_step"
+
+    id: Mapped[int] = mapped_column(
+        ForeignKey("base_step.id", ondelete="CASCADE"), primary_key=True
+    )
+
+    description: Mapped[Optional[str]] = mapped_column(String)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "break",
+    }

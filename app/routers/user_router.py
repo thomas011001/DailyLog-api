@@ -5,7 +5,6 @@ from app.repo.user_repo import UserRepo
 from app.schemas import DayOut
 from app.services.user_service import UserService
 
-
 user_router = APIRouter()
 
 
@@ -23,4 +22,3 @@ def get_current_user_days(
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal server error."
         )
-

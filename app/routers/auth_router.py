@@ -9,7 +9,6 @@ from app.services.auth_service import (
     UsernameTakenError,
 )
 
-
 auth_router = APIRouter()
 
 
@@ -37,6 +36,9 @@ def login(credentials: Credentials, repo: UserRepo = Depends(get_user_repo)):
         token = service.authenticate(credentials)
     except InvalidCredentialsError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid username or password")
+    except Exception:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, "Internal Server Error."
+        )
 
     return {"token": token}
-

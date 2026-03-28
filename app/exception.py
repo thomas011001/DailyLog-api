@@ -10,6 +10,10 @@ class DayNotFoundError(Exception):
     pass
 
 
+class StepNotFoundError(Exception):
+    pass
+
+
 class DayConflictError(Exception):
     pass
 
@@ -22,7 +26,5 @@ class TaskNotFoundError(Exception):
     pass
 
 
-class NoteNotFoundError(Exception):
+class SessionNotFoundError(Exception):
     pass
-
-
