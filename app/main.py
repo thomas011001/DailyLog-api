@@ -7,6 +7,8 @@ from app.routers.auth_router import auth_router
 from app.routers.day_router import day_router
 from app.routers.task_router import task_router
 from app.routers.user_router import user_router
+from app.routers.break_step_router import break_step_router
+from app.routers.base_step_router import base_step_router
 
 app = FastAPI()
 
@@ -62,3 +64,5 @@ app.include_router(task_router)
 app.include_router(user_router)
 app.include_router(focus_step_router)
 app.include_router(focus_session_router)
+app.include_router(base_step_router)
+app.include_router(break_step_router)

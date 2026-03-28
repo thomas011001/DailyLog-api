@@ -88,7 +88,7 @@ class FocusStepOut(StepOut):
 
 
 class BreakStepOut(StepOut):
-    description: str
+    description: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -105,3 +105,8 @@ class DayOut(BaseModel):
 
 class FocusStepCreate(BaseModel):
     sessions_count: int = Field(gt=0, default=1)
+
+class BreakStepCreate(BaseModel):
+    description: str | None = None
+class BreakStepUpdate(BaseModel):
+    description: str | None = None

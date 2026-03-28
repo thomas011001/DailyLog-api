@@ -9,12 +9,15 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.repo.break_step_repo import BreakStepRepo
 from app.repo.day_repo import DayRepo
 from app.repo.focus_session_repo import FocusSessionRepo
 from app.repo.focus_step_repo import FocusStepRepo
 from app.repo.step_repo import BaseStepRepo
 from app.repo.user_repo import UserRepo
 from app.repo.task_repo import TaskRepo
+from app.services.base_step_service import BaseStepService
+from app.services.break_step_service import BreakStepService
 from app.services.day_service import DayService
 from app.services.focus_session_service import FocusSessionService
 from app.services.focus_step_service import FocusStepService
@@ -95,3 +98,18 @@ def get_session_sevice(
     base_step_repo: BaseStepRepo = Depends(get_base_step_repo),
 ):
     return FocusSessionService(session_repo, base_step_repo, day_repo)
+
+def get_break_step_repo(db: Session = Depends(get_db)):
+    return BreakStepRepo(db) 
+
+def get_break_step_service(
+    break_step_repo: BreakStepRepo = Depends(get_break_step_repo),
+    day_repo: DayRepo = Depends(get_day_repo),
+):
+    return BreakStepService(break_step_repo=break_step_repo, day_repo=day_repo)
+
+def get_base_step_service(
+    base_step_repo: BaseStepRepo = Depends(get_base_step_repo),
+    day_repo: DayRepo = Depends(get_day_repo),
+):
+    return BaseStepService(base_step_repo=base_step_repo, day_repo=day_repo)
