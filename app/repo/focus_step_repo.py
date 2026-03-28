@@ -27,4 +27,3 @@ class FocusStepRepo:
             .where(FocusStep.id == focus_step.id)
         )
         return self.db.execute(stmt).unique().scalar_one()
-

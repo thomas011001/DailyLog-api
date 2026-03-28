@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routers.focus_session_router import focus_session_router
 from app.routers.focus_step_router import focus_step_router
 from app.routers.auth_router import auth_router
 from app.routers.day_router import day_router
@@ -43,13 +44,13 @@ app.add_middleware(
 # Set The Day Steps
 
 # Shared
-# toggle step compelete  
+# toggle step compelete
 # delete a step
 # complete a step
 
 # Focus
 # create
-# add, delete and toggle compelete sessions 
+# add, delete and toggle compelete sessions
 
 # Break
 # create
@@ -60,3 +61,4 @@ app.include_router(day_router)
 app.include_router(task_router)
 app.include_router(user_router)
 app.include_router(focus_step_router)
+app.include_router(focus_session_router)

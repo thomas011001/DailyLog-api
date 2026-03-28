@@ -74,10 +74,11 @@ class StepOut(BaseModel):
 
 
 class FocusSessionOut(BaseModel):
-    id: int 
-    is_completed: bool 
+    id: int
+    is_completed: bool
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class FocusStepOut(StepOut):
     sessions_count: int
@@ -90,7 +91,6 @@ class BreakStepOut(StepOut):
     description: str
 
     model_config = ConfigDict(from_attributes=True)
-
 
 
 class DayOut(BaseModel):

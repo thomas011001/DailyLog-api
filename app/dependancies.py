@@ -10,10 +10,13 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.repo.day_repo import DayRepo
+from app.repo.focus_session_repo import FocusSessionRepo
 from app.repo.focus_step_repo import FocusStepRepo
+from app.repo.step_repo import BaseStepRepo
 from app.repo.user_repo import UserRepo
 from app.repo.task_repo import TaskRepo
 from app.services.day_service import DayService
+from app.services.focus_session_service import FocusSessionService
 from app.services.focus_step_service import FocusStepService
 from app.services.task_service import TaskService
 
@@ -76,3 +79,19 @@ def get_focus_step_service(
 
 def get_day_service(day_repo: DayRepo = Depends(get_day_repo)):
     return DayService(day_repo)
+
+
+def get_session_repo(db: Session = Depends(get_db)):
+    return FocusSessionRepo(db)
+
+
+def get_base_step_repo(db: Session = Depends(get_db)):
+    return BaseStepRepo(db)
+
+
+def get_session_sevice(
+    day_repo: DayRepo = Depends(get_day_repo),
+    session_repo: FocusSessionRepo = Depends(get_session_repo),
+    base_step_repo: BaseStepRepo = Depends(get_base_step_repo),
+):
+    return FocusSessionService(session_repo, base_step_repo, day_repo)

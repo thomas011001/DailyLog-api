@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.core.db import Base, get_db
 from app.main import app
-from app.models import Day, FocusSession, Task, User
+from app.models import Day, FocusSession, FocusStep, Task, User
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -49,6 +49,7 @@ def client(db_session):
     yield TestClient(app)
     app.dependency_overrides.clear()
 
+
 @pytest.fixture
 def test_user(db_session: Session):
     user = User(username="test_user", password_hash="hashed_pw")
@@ -71,9 +72,10 @@ def test_day(db_session: Session, test_user):
     db_session.refresh(day)
     return day
 
+
 @pytest.fixture
 def test_focus_step(db_session: Session, test_day: Day):
-    session = FocusSession(day=test_day)
+    session = FocusStep(day=test_day, order=1)
     db_session.add(session)
     db_session.commit()
     db_session.refresh(session)

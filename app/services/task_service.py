@@ -57,9 +57,7 @@ class TaskService:
         self._ensure_task_ownership(task, user_id)
 
         try:
-            return self.task_repo.update_task(
-                task, **payload.model_dump()
-            )
+            return self.task_repo.update_task(task, **payload.model_dump())
         except IntegrityError as exc:
             # In case of constraint issues, treat as not found / conflict
             raise TaskNotFoundError() from exc
