@@ -40,31 +40,7 @@ class CreateDay(BaseModel):
 class TaskOut(BaseModel):
     id: int
     title: str
-<<<<<<< HEAD
-    description: str | None = None
-    priority: int = 1
-    remind_at: datetime | None = None
-    status: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class NoteOut(BaseModel):
-    id: int
-    content: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class DayOut(BaseModel):
-    id: int
-    title: str | None = None
-    date: date
-    tasks: list[TaskOut]
-    notes: list[NoteOut]
-=======
     is_complete: bool
->>>>>>> dev
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -81,25 +57,11 @@ class UserTokenData(BaseModel):
 
 class CreateTask(BaseModel):
     title: str
-<<<<<<< HEAD
-    description: str | None = None
-    priority: int = 1
-    remind_at: datetime | None = None
-    status: str | None = None
-=======
->>>>>>> dev
 
 
 class UpdateTask(BaseModel):
     title: str | None = None
-<<<<<<< HEAD
-    description: str | None = None
-    priority: int | None = None
-    remind_at: datetime | None = None
-    status: str | None = None
-=======
     is_complete: bool | None = None
->>>>>>> dev
 
 
 class StepOut(BaseModel):

@@ -31,18 +31,7 @@ class TaskService:
         if day.user_id != user_id:
             raise ForbiddenDayAccessError()
 
-<<<<<<< HEAD
-    def create_task(self, user_id: int, payload: CreateTask) -> Task:
-        self._ensure_day_ownership(payload.day_id, user_id)
-        task = Task(
-            day_id=payload.day_id,
-            title=payload.title,
-            description=payload.description,
-            priority=payload.priority,
-            remind_at=payload.remind_at,
-            status=payload.status or "pending",
-        )
-=======
+
     def _get_task_or_404(self, task_id: int) -> Task:
         task = self.task_repo.get_task(task_id)
         if not task:
@@ -58,7 +47,6 @@ class TaskService:
         self._ensure_day_ownership(day, user_id)
 
         task = Task(**payload.model_dump(), day_id=day_id)
->>>>>>> dev
         try:
             return self.task_repo.create_task(task)
         except IntegrityError as exc:
@@ -69,25 +57,8 @@ class TaskService:
         task = self._get_task_or_404(task_id)
         self._ensure_task_ownership(task, user_id)
 
-        # constrain status to either "pending" or "finished" if provided
-        status_value = payload.status
-        if status_value is not None and status_value not in {"pending", "finished"}:
-            # Treat invalid status as no-op on status, or you could raise a dedicated error.
-            status_value = None
-
         try:
-<<<<<<< HEAD
-            return self.task_repo.update_task(
-                task,
-                title=payload.title,
-                description=payload.description,
-                priority=payload.priority,
-                remind_at=payload.remind_at,
-                status=status_value,
-            )
-=======
             return self.task_repo.update_task(task, **payload.model_dump())
->>>>>>> dev
         except IntegrityError as exc:
             # In case of constraint issues, treat as not found / conflict
             raise TaskNotFoundError() from exc
